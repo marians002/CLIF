@@ -1,0 +1,84 @@
+# file with the documentation for clif: the common lisp interactive fiction.
+
+
+* description
+This is a project to write a language for choose your own adventure stories using undum.  The idea is to have a higher level language for the description of stories.
+
+:-o Maybe that's useful for other ideas concerning stories :-).  But, so far we want to write the conferences and solutions to the exercises of the Optimization Models for computer science.
+
+* requirements
+
+ - undum
+ - gagm
+
+So far, we are going to depend on gagm and undum.  Undum is a framework for creating stories in javascript and html.  gagm is a common lisp framework for the creation of high level languages that can be later converted to a set of output languages.
+
+*ADD THE URL OF THOSE LIBRARIES* 
+
+* Tutorials
+** basic tutorial (for developers on 2024-10-26)
+This is a very simple tutorial, to make sure that I know what do I need to do in order to create a very simple story.
+
+First, we need to define where we are going to generate the story.  In this case, it will be the folder /tmp/.
+
+The steps are the following
+
+*** 1.  Initialize the system in the desired folder (/tmp/)
+This means to copy the files in the folder assets to that directory.
+
+The files in the folder assets are:
+
+#+begin_src bash 
+ls assets
+#+end_src
+
+#+RESULTS:
+| img                 |
+| jquery-2.1.3.min.js |
+| undum.css           |
+| undum.js            |
+*** 2. Initialize slime and change to clif directory 
+*** 3. Tangle the file clif.org
+*** 4. Load the file src/load-clif.lisp and change to the clif package
+*** 5. generate the html file
+This is done by executing the function =(initialize-undum)=, and define the filename for the html containing the story.  In this case, it will be =/tmp/clif.html=.
+
+#+begin_src lisp :results output :export code :tangle src/tests.lisp
+(with-open-file (f "/tmp/clif.html" :direction :output
+                   :if-exists :supersede)
+  (initialize-undum t undum f))
+#+end_src
+
+*** 6. generate the code for the story
+That is to create a story and =generate-code= for the language =undum= (the only language we have so far).  It is important that the name of the js file with the name should be: undum-game.js.  Right now it is hardwired in the html file.
+
+#+begin_src lisp :results output :export code :tangle src/tests.lisp
+(let* ((bs1 (basic-situation "start"
+                             "<h1>Un juego con una sola situación</h1>"
+                             (nline)
+                             "<p>Esta es una única situación, con texto.</p>"
+                             (nline)
+                             "<p>Presiona " (link "ultimo" "aquí para terminar.") "</p>"))
+       (bs2 (basic-situation "ultimo"
+                             "<p class='transient'>Felicitaciones</p>"
+                             (nline)
+                             "<p>Has terminado tu primera aventura</p>"
+                             (nline)
+                             "<p>FIN</p>"))
+       (story1 (story (list bs1 bs2) "start")))
+
+  (bformat t "generating code to file: /tmp/undum-game.js")
+  (with-open-file (f "/tmp/undum-game.js" :direction :output
+                     :if-exists :supersede)
+      (generate-code story1 undum f)))
+#+end_src
+
+#+RESULTS:
+: =============================================
+:  generating code to file: /tmp/undum-game.js
+: =============================================
+: 
+
+*** 7. Test the generated game by opening the file clif.html in a browser
+*** 8. Enjoy your game :-)
+

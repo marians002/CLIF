@@ -1,0 +1,266 @@
+# file with the journal for the common lisp interactive fiction project
+# maybe the name should be common lisp choose your own adventure
+# but I like clif better :-)
+
+* wishlist
+
+** add syntax highlight
+** add a situations autocomplete (2024-10-28)
+** automate the creation of stories (2024-10-28)
+** automate the creation of situations (2024-10-28)
+** html text tags (bf, it, tt, etc) (2024-10-28)
+
+* <2024-10-28 Mon>
+:LOGBOOK:
+CLOCK: [2024-10-28 Mon 00:50]--[2024-10-28 Mon 01:01] =>  0:11
+CLOCK: [2024-10-28 Mon 00:12]--[2024-10-28 Mon 00:40] =>  0:28
+:END:
+ - fix some errors in the tangle
+ - reorganized the structure of the org-file
+ - decide what to do
+   - maybe write a simple story, or
+   - add the text attrs bf, it, tt, etc.
+   - i'm going with a story, the criterion for not adding the tags is yagni
+ - read about undum (specifically about the actions)
+ - wrote a story with three situations :party:
+ - next steps
+   - add a generate-story
+   - remember that the situations' id can not contain dashes - :-(
+   - +write a couple of methods to convert from dash to underscore+
+ - read about undum (situations and links)
+ - I know how to solve the problems with the dashes!  :-o
+   - just modify the situation to always add a "" to the id.
+ - next steps [0/3]
+   - [ ] modify the situations generate-code to always add "" to the key
+   - [ ] automate the creation of situations
+   - [ ] automate the creation of stories
+
+** thoughts (in spanish, about the types of liks)
+:LOGBOOK:
+CLOCK: [2024-10-28 Mon 00:41]--[2024-10-28 Mon 00:50] =>  0:09
+:END:
+   
+Hoy escribí una historia con tres situaciones.  Eso fue muy útil, porque me permitió detectar un par de pifias, y además, indicó cuál era el camino a seguir para los próximos pasos :-).  Automatizar la creación de las situaciones, y automatizar llevar de guión normal a guión bajo en el nombre de las situaciones.
+
+Se me acaba de ocurrir, pero ahora mismo va a la lista de YAGNI, que sería bueno poder autocompletar con situaciones existentes.  Pero eso ahora no viene al caso.
+
+¿Quizás sea bueno crear un «wishlist»?  Cada vez que se me ocurre algo, lo pongo ahí, y después cuando todos los experimentos se acaben, de ahí se saca qué es lo próximo que se puede hacer.  O a lo mejor, es preferible seguir con los experimentos, y listo.  Ya veremos.
+
+Pero bueno, nada de eso era lo que yo quería poner aquí :-P.  Lo que quería escribir aquí era la notica sobre que existen tres tipos de links, o lo que es lo mismo, tres clases de css para los links:
+ - transient
+ - raw
+ - sticky
+
+Transient es el que lo elimina cuando cambias de posición. 
+Raw es para cuando no sean links internos de undum.
+Sticky es para que se quede, incluso cuando se cambia de situación.  
+
+Eso no lo entiendo muy bien...  tengo que revisar...  Ohhhhh...  no, no...  lo había leído mal :paf:.
+
+Hay tres tipos de «links»: los de cambiar de situación, los de ejecutar acción y los tradicionales de html de toda la vida.
+
+La forma de tratar un link como si fuera uno normal de html es con la clase de css «raw».  Y ya está.  Lo otro que se puede hacer es que cuando cambies de situación no desaparezca el link, eso es lo que se hace con la clase de css sticky.
+
+Creo que ahora sí lo entendí bien.  Voy a probar en la historia.  Lo primero es quitar el transient al <p> que contiene el link, y después dejar uno de los links con sticky.
+
+Veamos qué sale de ahí.  Funcionó :-D.
+
+* <2024-10-26 Sat>
+:LOGBOOK:
+CLOCK: [2024-10-26 Sat 18:29]--[2024-10-26 Sat 19:51] =>  1:22
+CLOCK: [2024-10-26 Sat 17:42]--[2024-10-26 Sat 18:12] =>  0:30
+CLOCK: [2024-10-26 Sat 17:38]--[2024-10-26 Sat 17:41] =>  0:03
+CLOCK: [2024-10-26 Sat 16:56]--[2024-10-26 Sat 17:33] =>  0:37
+CLOCK: [2024-10-26 Sat 16:29]--[2024-10-26 Sat 16:45] =>  0:16
+CLOCK: [2024-10-26 Sat 15:39]--[2024-10-26 Sat 16:29] =>  0:50
+:END:
+ - generate the html
+ - create the folder assets
+   - in this folder we'll have the files undum.js, jquery.js and undum.css
+   - these are the files that we should always move to wherever we want to test
+   - the stories
+ - let's check everything from scratch
+ - write a tutorial :party:, and it works
+ - add the abstract class has-contents (and refactored basic-situation and link)
+ - add the element html-p
+ - add the element html-h1
+ - wrote a story using p, link and h1
+ - :-o we lost the ability to add classes to the html elements! :-o
+   - we should fix that :-/
+ - add the css-classes
+ - refactor the constructors of h1 and p to include the css-classes
+ - I think we need a macro for that...  because every html-tag will need it :-/
+ - I think that should be the next step
+ - wrote on the macro
+ - now working on the code generation for the css-classes
+ - add the code-generation for nil (don't write anything)
+ - wrote a macro for the code generation of html-tags
+   - that have contents and possible css-class
+ - write the constructor of link to include css-classes
+ - wrote the code generation for link (to include css-classes)
+ - tested with an story with links
+ - transient in link does not work :-/.
+   - I need to check that with the undum documentation
+ - let's stop for today, it has been a lot of work.
+
+** thoughts (in spanish, about what to do with the css classes)
+:LOGBOOK:
+CLOCK: [2024-10-26 Sat 17:33]--[2024-10-26 Sat 17:38] =>  0:05
+:END:
+ Ya tenemos las etiquetas p y h1 :party:. Ahora el problema es que perdimos la posibilidad de tener las clases de css :-(.  Estoy pensando cómo resolver eso...  y la idea que tengo es usar :keywords para representar las clases de html.  De esa forma en el constructor de las clases que tengan html se puede preprocesar el contents, quitar todos los keywords y ahí hacer las dos cosas: crear la clase con el contents original y asignar el valor del slot css-classes.
+
+El convenio sería que el keyword que vayas a hacer tiene que ser «exactamente» el mismo nombre de la clase.  También tiene el inconveniente de que en el nombre de la clase del css no pudes usar mayúsculas y minúsculas porque aquí vamos a coger el nombre del :keyword y llevarlo todo a minúsculas.
+
+De todas formas, ahora mismo me parece una idea interesante.
+
+Vamos a ver qué sale de ahí...
+   
+* <2024-10-25 Fri>
+:LOGBOOK:
+CLOCK: [2024-10-25 Fri 22:41]--[2024-10-25 Fri 22:51] =>  0:10
+CLOCK: [2024-10-25 Fri 21:33]--[2024-10-25 Fri 22:40] =>  1:07
+CLOCK: [2024-10-25 Fri 18:04]--[2024-10-25 Fri 18:44] =>  0:40
+CLOCK: [2024-10-25 Fri 16:51]--[2024-10-25 Fri 17:01] =>  0:10
+:END:
+ - start writing the code generation
+ - just added the heading for the code generation
+ - and read the code generation in lmml
+ - add the language undum
+ - add the code generation for basic elements (numbers, strings, and symbols)
+ - add the code generation for the link
+ - add the code generation for the situation
+ - add the newline in the js-code
+ - adding the class for a story
+ - add the code generation for a story (the simple game works!!!!)
+ - next steps [1/1]
+   - [X] maybe generate the html
+** thoughts (in spanish, about the next steps)
+:LOGBOOK:
+CLOCK: [2024-10-25 Fri 22:41]--[2024-10-25 Fri 22:51] =>  0:10
+:END:
+Ya hoy se generó una primera historia (de palo, pero es una primera historia) y eso me tiene de lo más contento :party:.  
+
+Estoy escribiendo aquí para reflexionar sobre cuáles deberían ser los siguientes pasos.  Por un lado, está seguir agregando clases para poder hacer las historias más «ricas» y por el otro está lo de generar también el html, y no solo el js.
+
+Quizás más que generar el html, se algo como lo que hay en pp, que copia todo lo que haga falta para una carpeta y listo, ahí se ejecuta todo.  A lo mejor se puede hacer una función que lo que haga sea crear todo lo que haga falta en esa carpeta, lo que no me queda claro si debería ser en lisp o debería hacerlo en emacs.  
+
+En cualquier caso, hasta que todo esté listo no se puede empezar a crear historias, así que :think: estoy pensando que los próximos pasos deben ser los de poderlo crear todo.  Supongo que igual mañana tendré que experimentar con cómo hacerlo, haciéndolo un par de veces a mano, y después nunca más hacerlo a mano :-D.
+
+En cualquier caso, ya veremos.  La sensación que tengo es que ha sido muy cómodo trabajar con gagm.  Qusiera comentárselo a Yasmany.  Supongo que siempre es bueno que alguien te diga que lo que hiciste estuvo bueno, y en el caso de la computación, que además se esté usando :-).
+
+En cualquier caso, con las clases que ya tenemos implementadas creo que podemos hacer historias muy sencillas, en las que solo sea hacer branching de un lado para otro.
+
+Solo para quitármelo de adentro, voy a escribir aquí las cosas que yo sé que están pendientes y que habrá que hacer en algún momento:
+ 1. agregar el resto de las clases que faltan: imágenes, y la pacotilla de tener las cositas de html en alto nivel.
+ 2. poder configurar las primeras variables del fichero js.  Esto tiene una prioridad muy baja por dos motivos.  El primero es que no creo que haga falta cambiarlo, y el segundo es que es muy fácil de cambiar.
+ 3. pensar en los atributos y las cualidades.
+ 4. pensar en usar las funciones que controlen cosas, como lo que se muestra y cosas así.
+ 5. incluir las acciones.  Tan pronto esté lista la generación completa, quizás esto sea de las primeras cositas que se deben hacer.
+ 6. empezar a hacer historias.
+
+Evidentemente, el orden fue solo en el que se escribió y no refleja una prioridad de ningún tipo :-P.  Quizás la más importante sea empezar a hacer las historias, pero ya llegaremos ahí 8-D.
+
+Suponqo que hasta aquí ha sido una buena reflexión :-).  FIN.
+ 
+* <2024-10-24 Thu>
+:LOGBOOK:
+CLOCK: [2024-10-24 Thu 22:57]--[2024-10-24 Thu 23:20] =>  0:23
+CLOCK: [2024-10-24 Thu 22:35]--[2024-10-24 Thu 22:41] =>  0:06
+CLOCK: [2024-10-24 Thu 22:18]--[2024-10-24 Thu 22:33] =>  0:16
+:END:
+ - wrote an undum story
+ - removed (almost) everything not related to my story from the undum file.
+ - added the class basic-situation
+ - added the class link
+ - next-steps [1/1]
+   - [X] write the (basic) code generators for
+     - [X] basic-situation
+     - [X] link
+     - [X] undum story
+
+** thoughts (in spanish, about creating a game in undum)
+:LOGBOOK:
+CLOCK: [2024-10-24 Thu 23:20]--[2024-10-24 Thu 23:26] =>  0:06
+CLOCK: [2024-10-24 Thu 22:54]--[2024-10-24 Thu 22:57] =>  0:03
+CLOCK: [2024-10-24 Thu 22:33]--[2024-10-24 Thu 22:34] =>  0:01
+:END:
+
+Bueno, creo que acabo de modificar un fichero con un juego en undum para crear una «historia».  Muy sencillita, solo dos situaciones.  Fue agotador, pero bueno, algo es algo :-).
+
+Supongo que el próximo paso sea coger ese mismo fichero y borrarle todo lo (creo) que no hace falta.
+
+O sea, sería crear un fichero con el encabezado, las dos situaciones, y listo.
+
+Vamos a experimentar.  Listo, ya lo hice...  y creo que tiene el mérito de que solo necesitamos una basicSituation y un link, que tiene un texto y una referencia a otra situación.  
+
+Creo que vamos a empezar por ahí.
+
+(Aquí pasaron unos 20 minutos de tirar código :-D)
+
+Acabo de crear dos situaciones y un hipervínculo, que supuestamente me permitirán exportar mi primera historia en undum con clif.
+
+Después de escribir la primera historia, parece que también vamos a incluir en clif algunos elememntos de html...  al menos h1, h2 y p.  Evidenentemente =aref= ya está incluido, pero sospecho que la forma más cómoda (y extensible) de hacerlo es esa...  y por supuesto, también está crear la clase js, que lo que haga sea permitir escribir directamente en javascript y así mismo lo incluye en la historia.
+
+También estoy pensando que estamos a un tilín de, una vez que tengamos todas las situaciones, hacer una representación gráfica mediante un grafo y, ¡uy!, como se va a parecer eso a twine :-o.  Pero bueno...  ya veremos cómo va quedando.  Cuando llegue el momento ya veremos, que la verdad es que espero no llegar ahí.
+
+Al menos hoy puedo asegurar que estoy muy contento con mi primera historia y mis clases de =basic-situation= y =link=.  Me imagino que mañana los primeros pasos sean implementar los generadores de código para estas dos clases :-).
+ 
+* <2024-10-23 Wed>
+:LOGBOOK:
+CLOCK: [2024-10-23 Wed 22:18]--[2024-10-23 Wed 22:58] =>  0:40
+:END:
+ - start copying the ideas from lmml.org
+ - add the package-definitions
+ - add the utilities
+ - add the file to load everything
+ - create the heading for the ast
+ - next steps [2/2]
+   - [X] write a very basic story in undum
+   - [X] add the classes required to write that story
+
+** thoughts (in spanish, about a package with utilities)
+Estoy pensando y creo que quizás debería crear un fichero de utilidades de common lisp.  Es que me acabo de dar cuenta de que en todos los proyectos tengo el mismo fichero utilities.lisp...  
+
+Quizás deba hacer como con gagm, que tengo un fichero con esas utilidades y listo...
+
+Aunque por otro lado, me parece que es un muy buen pretexto para procrastinar ahora mismo, así que solo por ese motivo no lo voy a hacer.  Por ahora, voy a copiar y pegar lo que está ahí, y si acaso, en algún momento, regresaré sobre este tema, pero por ahora voy a garantizar adelantar algo en lo que estoy haciendo :-).
+
+Así, que no...  muy buena reflexión, pero no...  por ahora no vamos a crear un fichero con utilidades.
+
+====================
+
+Ya llegamos al punto en el que solo falta empezar a crear las clases del ast de las historias, que supongo que por ahora solo deben ser las situaciones (¿basicas?)  y los links...  Pero como eso es una suposición, el primer paso, y ese sí va a ser mañana, será hacer una historia muy sencilla en undum puro y duro.
+
+Quizás los próximos pasos sean acciones y las funciones que ocurran al entrar o salir de una situación, pero para eso será necesario experimentar un poco directamente con undum.  
+
+También hará falta todo lo relacionado con los personajes, pero una vez más, eso lo iremos viendo en la medida que que avancen las historias.
+
+Y supongo que esto será todo por hoy.
+
+Reflexión al margen: me pregunto si en un futuro, parte de la programación será como esto: escribir en lenguaje natural y dejar que los LLM tiren el código :crazy:.  Lo que creo que ocurrirá aquí es que siempre habrá situaciones en las que las LLM no sabrán que hacer.  Y supongo que esos escenarios son los mismos donde los programadores capaces tampoco saben qué hacer todavía y hay que trastear y experimentar un poco.  En fin, me parece que son ideas interesantes...  Y también me parece que estos textos debería pasarlos para el fichero de las publicaciones del mes, que es lo que voy a hacer ahora mismo.
+
+* <2024-10-22 Tue>
+:LOGBOOK:
+CLOCK: [2024-10-22 Tue 18:35]--[2024-10-22 Tue 18:51] =>  0:16
+:END:
+
+ - initialized the git repository
+ - added this file
+ - added the file documentation.org
+ - added the .gitignore
+ - added the file clif.org
+ - next steps: [1/1]
+   - [X] start adding code following the format in lmml.org
+     
+** thoughts (in spanish)
+Bueno, parece que voy a crear un generador de historias interactivas en common lisp.  A la idea le estaba dando vueltas desde hace tiempo, pero hoy estuve coqueteando casi todo el día con undum y creo que quiero hacer los textos de optimización usando undum, así que wiiiiiii :-).
+
+Por otro lado, por ahora me voy a enfocar en undum, aunque eso no quita que en un futuro probablemente se pueda generar los textos en twine o en otra aplicación que lo permita.
+
+Supongo que la idea es empezar a crear las clases para reproductir lo que se puede hacer en undum, y escribir todo el texto sobre ese nuevo lenguaje, para tener la garantía de que después lo podamos tener también :-).
+
+Hay otras muchas ideas, pero por ahora solo nos va quedando empezar a trabajar y hacer un primer juego que sea solamente dos situaciones básicas: una en la que empieza el juego y otra en la que se termina.
+
+Así que supongo que para eso necesitaremos como mínimo las situaciones básicas, los links, y cómo generar todo el texto inmenso ese que son el html y el js.  Me imagino que por ahora serán simplemente copiar y pegar de lo que hay en los html por ahí.cu
+
+
