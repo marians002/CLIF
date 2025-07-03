@@ -419,18 +419,19 @@ Let's write the macro.
    In this section I'll add a file to load everything
 ** code
    #+begin_src lisp :results none :export code :tangle src/load-clif.lisp
-   (defun fload (filename)
-     (let* ((dot-string (make-string (cl:- 40 (cl:+ 3 (length filename)))
-                                     :initial-element #\.)))
-       (format t "Loading ~a ..." filename)
-       (load filename)
-       (format t "~a OK~%" dot-string)))
-   (fload "src/gagm.lisp")
-   (fload "src/package.lisp")
-   (fload "src/utilities.lisp")
-   (fload "src/macros.lisp")
-   (fload "src/ast-nodes.lisp")
-   (fload "src/writer-undum.lisp")
+     (defun fload (filename)
+       (let* ((dot-string (make-string (cl:- 40 (cl:+ 3 (length filename)))
+				       :initial-element #\.)))
+	 (format t "Loading ~a ..." filename)
+	 (load filename)
+	 (format t "~a OK~%" dot-string)))
+     (fload "src/gagm.lisp")
+     (fload "src/package.lisp")
+     (fload "src/utilities.lisp")
+     (fload "src/macros.lisp")
+     (fload "src/ast-nodes.lisp")
+     (fload "src/writer-html.lisp")
+     (fload "src/writer-latex.lisp")
    #+end_src
 
 
@@ -448,7 +449,6 @@ All the src blocks will be tangled to the file src/ast-nodes.lisp.
    #+end_src
    
 ** abstract classes
-
 *** description 
 There are some elements in the AST that share elements.  The idea is to have some base classes in this section that are common to some of the elements in the AST.
 
@@ -473,13 +473,13 @@ A base class for all the nodes that represent html nodes and can have css-classe
      :documentation "A base class for all the elements that can have css classes.")
    #+end_src
 **** no test because it is an abstract class
-** actual classes
+** +actual classes+
 *** class basic-situation
 **** description
 A class to represent a basicSituation in undum.  I think that a basicSituation only requires an id (probably a symbol) and a list of text.
 
 **** code
-   #+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+   #+begin_src lisp :results none :export code 
    (defnode basic-situation (has-contents) 
      (id)
      :documentation "A class to represent a basic situation in undum."
@@ -512,7 +512,7 @@ A class to represent an hyperlink in undum.  It is essential a traditional html 
      :string-obj ("<<link ~a to (~a): ~a>>" css-classes target contents))
    #+end_src
 **** code v2 (with make-html-tag-constructor)
-   #+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+   #+begin_src lisp :results none :export code 
    (defnode link (has-contents has-css-classes) 
      (target)
      :documentation "A class to represent a link in undum."
@@ -541,7 +541,7 @@ A class to represent an hyperlink in undum.  It is essential a traditional html 
 **** description
 A class to represent a newline in the js code in undum.  It is there only to make the exported .js file more readable.
 **** code
-   #+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+   #+begin_src lisp :results none :export code 
    (defnode newline-in-js-class () 
      ()
      :documentation "A class to represent a new line in the js code."
@@ -559,7 +559,7 @@ A class to represent a newline in the js code in undum.  It is there only to mak
 **** description
 A class to represent a story.  So far (2024-10-25) the story only has a list of =basic-situations=, an initial situation and...  that's all.  Obviously, there are a lot of things missing from that story, but so far, we can deal with that.
 **** code
-   #+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+   #+begin_src lisp :results none :export code 
    (defnode story-class () 
      (situations initial-situation)
      :documentation "A class to represent a story."
@@ -592,7 +592,7 @@ A class to represent a <h1> tag in html.  The idea is to be able to write almost
 
 As we added the class =has-css-classes= we need to create a hand-made constructor for those clases.
 **** code
-   #+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+   #+begin_src lisp :results none :export code 
    (defnode html-h1 (has-contents has-css-classes)  
      ()
      :documentation "A class to represent a <h1> tag in html."
@@ -617,7 +617,7 @@ As we added the class =has-css-classes= we need to create a hand-made constructo
 **** description
 A class to represent a <p> tag in html.  The idea is to be able to write almost everything in common lisp.
 **** code
-   #+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+   #+begin_src lisp :results none :export code 
    (defnode html-p (has-contents has-css-classes) 
      ()
      :documentation "A class to represent a <p> tag in html."
@@ -642,7 +642,7 @@ A class to represent a <p> tag in html.  The idea is to be able to write almost 
 **** description
 A class to represent a newline in the html code. 
 **** code
- #+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+ #+begin_src lisp :results none :export code 
    (defnode html-br ()
        ()
        :documentation "A class to represent a line break in HTML."
@@ -657,7 +657,7 @@ A class to represent a newline in the html code.
 **** description
 A class to represent an unordered list (<ul> tag) in html. 
 **** code
-#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+#+begin_src lisp :results none :export code 
   (defnode html-ul (has-contents has-css-classes)
     ()
     :documentation "A class to represent a <ul> tag in html."
@@ -671,7 +671,7 @@ A class to represent an unordered list (<ul> tag) in html.
 **** description
 A class to represent an ordered list (<ol> tag) in html.
 **** code
-#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+#+begin_src lisp :results none :export code 
   (defnode html-ol (has-contents has-css-classes)
     ()
     :documentation "A class to represent a <ol> tag in html."
@@ -684,7 +684,7 @@ A class to represent an ordered list (<ol> tag) in html.
 **** description
 A class to represent a list item (<li> tag) in html.
 **** code
-#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+#+begin_src lisp :results none :export code 
   (defnode html-li (has-contents has-css-classes)
     ()
     :documentation "A class to represent a <li> tag in HTML."
@@ -697,7 +697,7 @@ A class to represent a list item (<li> tag) in html.
 **** description
 A class to represent an html button
 **** code
-#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+#+begin_src lisp :results none :export code 
  (defnode html-button (has-contents has-css-classes)
   (function-name)
   :documentation "A class to represent a button that triggers actions."
@@ -713,12 +713,1237 @@ A class to represent an html button
 
 **** tests
 
+** actual classes (2025-06-17)
+*** class text
+**** description
+A class to represent a test.  The idea is to be able to write almost everything in common lisp.
+**** code
+   #+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+   (defnode text (has-contents) 
+     ()
+     :documentation "A class to represent a block of text."
+     :string-obj ("<<text: ~a>>" contents)
+     :ctr-name text
+     :lambda-list (&rest contents))
+   #+end_src
+**** tests
+   #+begin_src lisp :results output :export code :tangle src/tests.lisp
+   (let* ((l1 (text "This is a test for a paragraph"))
+          (l2 (text "This is a test" " for a paragraph" " with a list as content")))
+     (bformat t "testing the constructor for text")
+     (format t "~a~%" l1)
+     (format t "~a~%" l2))
+   #+end_src
+
+   #+RESULTS:
+   : ==================================
+   :  testing the constructor for text
+   : ==================================
+   : 
+   : <<text: (This is a test for a paragraph)>>
+   : <<text: (This is a test  for a paragraph  with a list as content)>>
+
+*** class title
+**** description
+A class to represent a title. 
+**** code
+   #+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+   (defnode title (has-contents) 
+     ()
+     :documentation "A class to represent a title."
+     :string-obj ("<<title: ~a>>" contents)
+     :ctr-name title
+     :lambda-list (&rest contents))
+   #+end_src
+**** tests
+   #+begin_src lisp :results output :export code :tangle src/tests.lisp
+   (let* ((l1 (title "This is a test for a title"))
+          (l2 (title "This is a test" " for a title" " with a list as content")))
+     (bformat t "testing the constructor for title")
+     (format t "~a~%" l1)
+     (format t "~a~%" l2))
+   #+end_src
+
+   #+RESULTS:
+   : ==================================
+   :  testing the constructor for text
+   : ==================================
+   : 
+   : <<text: (This is a test for a paragraph)>>
+   : <<text: (This is a test  for a paragraph  with a list as content)>>
+*** class subtitle
+**** description
+A class to represent a subtitle. 
+**** code
+   #+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+   (defnode subtitle (has-contents) 
+     ()
+     :documentation "A class to represent a subtitle."
+     :string-obj ("<<subtitle: ~a>>" contents)
+     :ctr-name subtitle
+     :lambda-list (&rest contents))
+   #+end_src
+**** tests
+   #+begin_src lisp :results output :export code :tangle src/tests.lisp
+   (let* ((l1 (subtitle "This is a test for a subtitle"))
+          (l2 (subtitle "This is a test" " for a subtitle" " with a list as content")))
+     (bformat t "testing the constructor for subtitle")
+     (format t "~a~%" l1)
+     (format t "~a~%" l2))
+   #+end_src
+
+   #+RESULTS:
+   : ======================================
+   :  testing the constructor for subtitle
+   : ======================================
+   : 
+   : <<subtitle: (This is a test for a subtitle)>>
+   : <<subtitle: (This is a test  for a subtitle  with a list as content)>>
+*** class item
+**** description
+A class to represent a list item (<li> tag) in html.
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+  (defnode item (has-contents)
+    ()
+    :documentation "A class to represent an item."
+    :string-obj ("<<item: ~a>>" contents)
+    :lambda-list (&rest contents))
+#+end_src    
+**** tests
+   #+begin_src lisp :results output :export code :tangle src/tests.lisp
+   (let* ((l1 (item "Element 1"))
+          (l2 (item "With a list of elements")))
+     (bformat t "testing the constructor for item")
+     (format t "~a~%" l1)
+     (format t "~a~%" l2))
+   #+end_src
+
+   #+RESULTS:
+   : ==================================
+   :  testing the constructor for item
+   : ==================================
+   : 
+   : <<item: (Element 1)>>
+   : <<item: (With a list of elements)>>
+
+
+
+#+end_src
+*** class ordered-list
+**** description
+A class to represent an ordered list.
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+(defnode ordered-list (has-contents)
+  ()
+  :documentation "A class to represent an ordered lis."
+  :string-obj ("<<list: ~a>>" contents)
+  :ctr-name enumerate
+  :lambda-list (&rest contents))
+#+end_src    
+**** tests
+   #+begin_src lisp :results output :export code :tangle src/tests.lisp
+   (let* ((l1 (enumerate "Element 1" "element2"))
+          (l2 (enumerate (item "element1") (item "element2"))))
+     (bformat t "Testing the constructor for enumerate")
+     (format t "~a~%" l1)
+     (format t "~a~%" l2))
+   #+end_src
+
+   #+RESULTS:
+   : =======================================
+   :  Testing the constructor for enumerate
+   : =======================================
+   : 
+   : <<list: (Element 1 element2)>>
+   : <<list: (<<item: (element1)>> <<item: (element2)>>)>>
+
+
+
+#+end_src
+
+*** class unordered-list
+**** description
+A class to represent an unordered list.
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+(defnode unordered-list (has-contents)
+  ()
+  :documentation "A class to represent an unordered lis."
+  :string-obj ("<<list: ~a>>" contents)
+  :ctr-name itemize
+  :lambda-list (&rest contents))
+#+end_src    
+**** tests
+   #+begin_src lisp :results output :export code :tangle src/tests.lisp
+   (let* ((l1 (itemize "Element 1" "element2"))
+          (l2 (itemize (item "element1") (item "element2"))))
+     (bformat t "Testing the constructor for itemize")
+     (format t "~a~%" l1)
+     (format t "~a~%" l2))
+   #+end_src
+
+   #+RESULTS:
+   : =====================================
+   :  Testing the constructor for itemize
+   : =====================================
+   : 
+   : <<list: (Element 1 element2)>>
+   : <<list: (<<item: (element1)>> <<item: (element2)>>)>>
+
+
+
+#+end_src
+
+*** new-line
+**** description
+A class to represent a new-line
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+(defnode newline ()
+  ()
+  :documentation "A class to represent an ordered lis."
+  :string-obj ("<<newline>>"))
+#+end_src    
+**** tests
+   #+begin_src lisp :results output :export code :tangle src/tests.lisp
+   (let* ((l1 (newline)))
+     (bformat t "Testing the constructor for enumerate")
+     (format t "~a~%" l1))
+   #+end_src
+
+   #+RESULTS:
+   : =======================================
+   :  Testing the constructor for enumerate
+   : =======================================
+   : 
+   : <<newline>>
+
+-------------------------------------------------------------
+*** bold-face
+**** description
+A class to represent a format with bold
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+(defnode bold-face (has-contents)
+  ()
+  :documentation "A class to represent things formated with bold."
+  :string-obj ("<<b ~a>>" contents)
+  :ctr-name b
+  :lambda-list (&rest contents))
+#+end_src    
+**** tests
+   #+begin_src lisp :results output :export code :tangle src/tests.lisp
+   (let* ((l1 (b "hola mundo")))
+     (bformat t "Testing the constructor for bold")
+     (format t "~a~%" l1))
+   #+end_src
+
+   #+RESULTS:
+   : ==================================
+   :  Testing the constructor for bold
+   : ==================================
+   : 
+   : <<b (hola mundo)>>
+
+*** italic-face
+**** description
+A class to represent a format with italic
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+(defnode italic-face (has-contents)
+  ()
+  :documentation "A class to represent things formated with italic."
+  :string-obj ("<<it ~a>>" contents)
+  :ctr-name it
+  :lambda-list (&rest contents))
+#+end_src    
+**** tests
+   #+begin_src lisp :results output :export code :tangle src/tests.lisp
+   (let* ((l1 (it "hola mundo")))
+     (bformat t "Testing the constructor for italic")
+     (format t "~a~%" l1))
+   #+end_src
+
+   #+RESULTS:
+   : ====================================
+   :  Testing the constructor for italic
+   : ====================================
+   : 
+   : <<it (hola mundo)>>
+
+*** tt-face
+**** description
+A class to represent a format with tt or monospace
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+(defnode tt-face (has-contents)
+  ()
+  :documentation "A class to represent things formated with monospace."
+  :string-obj ("<<tt ~a>>" contents)
+  :ctr-name tt
+  :lambda-list (&rest contents))
+#+end_src    
+**** tests
+   #+begin_src lisp :results output :export code :tangle src/tests.lisp
+   (let* ((l1 (tt "hola mundo")))
+     (bformat t "Testing the constructor for monospace")
+     (format t "~a~%" l1))
+   #+end_src
+
+   #+RESULTS:
+   : =======================================
+   :  Testing the constructor for monospace
+   : =======================================
+   : 
+   : <<tt (hola mundo)>>
+
+*** strike-out-face
+**** description
+A class to represent a format with strike out.
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+(defnode strike-face (has-contents)
+  ()
+  :documentation "A class to represent things formated with strike."
+  :string-obj ("<<strike ~a>>" contents)
+  :ctr-name strike
+  :lambda-list (&rest contents))
+#+end_src    
+**** tests
+   #+begin_src lisp :results output :export code :tangle src/tests.lisp
+   (let* ((l1 (strike "not so hola mundo")))
+     (bformat t "Testing the constructor for strike")
+     (format t "~a~%" l1))
+   #+end_src
+
+   #+RESULTS:
+   : ====================================
+   :  Testing the constructor for strike
+   : ====================================
+   : 
+   : <<strike (not so hola mundo)>>
+
+*** underline-face
+**** description
+A class to represent a format with underline.
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+(defnode underline-face (has-contents)
+  ()
+  :documentation "A class to represent things formated with underline."
+  :string-obj ("<<underline ~a>>" contents)
+  :ctr-name underline
+  :lambda-list (&rest contents))
+#+end_src    
+**** tests
+   #+begin_src lisp :results output :export code :tangle src/tests.lisp
+   (let* ((l1 (underline "underlined hola mundo")))
+     (bformat t "Testing the constructor for underline")
+     (format t "~a~%" l1))
+   #+end_src
+
+   #+RESULTS:
+   : =======================================
+   :  Testing the constructor for underline
+   : =======================================
+   : 
+   : <<underline (underlined hola mundo)>>
+
+--------------------------------------------------------------
+*** link
+**** description
+A class to represent an hyperlink.
+
+It is a macro so we don't have to quote the target and it can be a symbol.
+**** code
+   #+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+   (defnode link (has-contents) 
+     (target)
+     :documentation "A class to represent a link."
+     :string-obj ("<<link to (~a): ~a>>" target contents)
+     :ctr-type macro
+     :lambda-list (target &rest contents))
+   #+end_src
+**** tests
+   #+begin_src lisp :results output :export code :tangle src/tests.lisp
+   (let* ((l1 (link test1 "click here to go to 'test1"))
+          (l2 (link test2 "click here " "to go to 'test2")))
+     (bformat t "testing the constructor for link")
+     (format t "~a~%" l1)
+     (format t "~a~%" l2))
+   #+end_src
+
+   #+RESULTS:
+   : ==================================
+   :  testing the constructor for link
+   : ==================================
+   : 
+   : <<link to (TEST1): (click here to go to 'test1)>>
+   : <<link to (test2): (click here  to go to 'test2)>>
+
+*** action
+**** description
+A class to represent an action that transforms some text into some other text
+
+Note: maybe later contents could be used to define the function code
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+  (defnode action (has-contents)
+    (action-id trigger-text target-id
+    contents)
+    :documentation "A node that shows text when activated."
+    :string-obj ("<<Action{~a}. Shows {~a} and transforms to {~a} with id {~a}." action-id trigger-text contents target-id)
+    :ctr-type macro
+    :lambda-list (action-id trigger-text target-id &rest contents)
+   )
+#+end_src
+**** tests
+*** image
+**** description
+A class to represent an image with optional alignment and size properties.
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+  (defnode image ()
+      (src
+       alt-text
+       (align :initform nil)
+       (size :initform nil))
+      :documentation "A node that represents an image with optional alignment and size."
+      :string-obj ("<<Image: ~a from ~a with align ~a and size ~a>>" alt-text src align size)
+      :ctr-type macro
+      :lambda-list (src alt-text &key align size)
+      )
+#+end_src
+**** tests
+ #+begin_src lisp :results output :export code :tangle src/tests.lisp
+(let* ((l1 (image "/home/marian/Pictures/firma.jpg"
+		   "mi firma"
+		   :align :center
+		   :size "20x3"))
+	(l2 (image "/home/marian/Pictures/firma.jpg"
+		   "mi firma")))
+   (bformat t "testing the constructor for image")
+   (format t "~a~%" l1)
+   (format t "~a~%" l2))
+   #+end_src
+
+   #+RESULTS:
+   : ===================================
+   :  testing the constructor for image
+   : ===================================
+   : 
+   : <<Image: mi firma from /home/marian/Pictures/firma.jpg with align CENTER and size 20x3>>
+   : <<Image: mi firma from /home/marian/Pictures/firma.jpg with align NIL and size NIL>>
+
+*** sound
+**** description
+A node to represent a sound.
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+(defnode start-sound ()
+  (src
+   (alt-text :initform "You can listen to some sound in the background"))
+  :documentation "A node that represents a sound file with optional alternative text."
+  :string-obj ("<<Sound: ~a from ~a>>" alt-text src)
+  :ctr-type macro
+  :lambda-list (src &key alt-text)
+  :ctr-body `(make-instance 'start-sound
+               :src ,src
+               :alt-text ,(or alt-text "You can listen to some sound in the background")))
+#+end_src
+**** tests
+ #+begin_src lisp :results output :export code :tangle src/tests.lisp
+   (let* ((l1 (start-sound "/home/marian/sound/rain.mp3"
+		      :alt-text "rain in the background"))
+	   (l2 (start-sound "/home/marian/sound/rain.mp3")))
+
+      (bformat t "testing the constructor for sound")
+      (format t "~a~%" l1)
+      (format t "~a~%" l2))
+   #+end_src
+
+   #+RESULTS:
+   : ===================================
+   :  testing the constructor for sound
+   : ===================================
+   : 
+   : <<Sound: rain in the background from /home/marian/sound/rain.mp3>>
+   : <<Sound: You can listen to some sound in the background from /home/marian/sound/rain.mp3>>
+
+*** TODO stop-sound
+*** TODO change-vol-sound
+*** TODO change-vol-video
+*** class video
+**** description
+A class to represent a video
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+(defnode video ()
+  (src
+   (alt-text :initform "Some video content"))
+  :documentation "A node that represents a video file with optional dimensions."
+  :string-obj ("<<Video: ~a from ~a>>" alt-text src)
+  :ctr-type macro
+  :lambda-list (src &key alt-text)
+  :ctr-body `(make-instance 'video
+               :src ,src
+               :alt-text ,(or alt-text "Some video content")))
+#+end_src
+---------------------------------------------------------------
+*** change-bg-color
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+(defnode change-bg-color ()
+ (color)
+  :documentation "A node that changes the background color."
+  :string-obj ("<<Change background color to ~a>>" color)
+  :lambda-list (color))
+#+end_src
+*** change-bg-image
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+(defnode change-bg-image ()
+  (image-url)
+  :documentation "A node that changes the background image with default settings."
+  :string-obj ("<<Change background image to ~a>>" image-url)
+  :lambda-list (image-url))
+#+end_src
+
+---------------------------------------------------------------
+*** font
+**** description
+A node to modfy the font of some text
+**** code
+   #+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+   (defnode font (has-contents) 
+     (new-font)
+     :documentation "A class to represent a text with a new font type."
+     :string-obj ("<<new font: ~a, Text: ~a>>" new-font contents)
+     :ctr-type macro
+     :lambda-list (new-font &rest contents))
+   #+end_src
+*** whiteboard
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+(defnode whiteboard (has-contents)
+  (wb-title author)
+  :documentation "A node that creates a whiteboard with title and content."
+  :string-obj ("<<Whiteboard: ~a by ~a>> ~a" wb-title author contents)
+  :ctr-type macro
+  :lambda-list (wb-title author &rest contents)
+  :ctr-body `(make-instance 'whiteboard 
+               :wb-title ,wb-title
+               :author ,author
+               :contents (list ,@contents)))
+#+end_src
+**** tests
+ #+begin_src lisp :results output :export code :tangle src/tests.lisp
+   (let* ((l1 (whiteboard "TITULO"
+		      "Marian S. aaaa"
+                        (text "prueba")))
+	   (l2 (whiteboard "SIN TITULO JAJAJAJ" "ANONIMO")))
+      (bformat t "testing the constructor for whiteboard")
+      (format t "~a~%" l1)
+      (format t "~a~%" l2))
+   #+end_src
+
+   #+RESULTS:
+   : ========================================
+   :  testing the constructor for whiteboard
+   : ========================================
+   : 
+   : <<Whiteboard: TITULO by Marian S. aaaa>> (<<text: (prueba)>>)
+   : <<Whiteboard: SIN TITULO JAJAJAJ by ANONIMO>> NIL
+
+*** TODO clear-whiteboard
+*** TODO add-to-wb
+*** TODO del-whiteboard
+*** TODO hide-whiteboard
+*** math-inline
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+(defnode math-inline ()
+  (math)
+  :documentation "A node for inline mathematical expressions."
+  :string-obj ("<<Math: ~a>>" math)
+  :ctr-name math-inline
+  :lambda-list (math))
+#+end_src
+*** math-center
+**** code
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+(defnode math-center ()
+  (math)
+  :documentation "A node for centered mathematical expressions."
+  :string-obj ("<<Math centered: ~a>>" math)
+  :ctr-name math-center
+  :lambda-list (math))
+#+end_src
+*** code-node
+#+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+(defnode code-node ()
+  (language code)
+  :documentation "A node for displaying code with syntax highlighting."
+  :string-obj ("<<Code block (~a): ~a>>" language code)
+  :ctr-name code-node
+  :lambda-list (language code))
+#+end_src
+*** scene
+**** description
+A class to represent a scene in clif.
+**** code
+   #+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+   (defnode scene (has-contents) 
+     (id)
+     :documentation "A class to represent a scene."
+     :ctr-type macro
+     :lambda-list (id &rest contents)
+     :ctr-body (let* ((scene-value (gensym)))
+                 `(let* ((,scene-value (make-instance 'scene :id ',id
+                                                      :contents (list ,@contents))))
+                    (defparameter ,id ,scene-value)
+                    ,scene-value))
+     :string-obj (" <<scene (~a):~%~{  ~a~%~}" id contents))
+
+   #+end_src
+**** tests
+***** testing macroexpansion
+   #+begin_src lisp :results none :export code
+   (scene introduccion
+          (text "El comienzo")
+          (text "Una escena con un "
+                (link final "link al final")))
+   #+end_src
+
+***** test viejito (y que ya no sirve)
+   #+begin_src lisp :results none :export code
+   (let* ((bs1 (-situation 'test1
+                                "hello world,"
+                                " my first situation"
+                                ", with 3 lines"))
+          (bs2 (basic-situation 'test2
+                                "<h1>Un juego con una sola situación</h1>"
+                                "<p>Esta es una única situación, con texto.</p>."
+                                "<p>Presiona <a href='ultimo'>aquí para terminar...</a></p>")))
+     (bformat t "testing the constructor for basic-situation")
+     (format t "~s~%" bs1)
+     (format t "~a~%" bs2))
+   #+end_src
+
+*** story
+**** description
+A class to represent a story
+**** code
+   #+begin_src lisp :results none :export code :tangle src/ast-nodes.lisp
+   (defnode story (has-contents) 
+     (id
+      story-title
+      (author :initform "Anonimous")
+      start)
+     :documentation "A class to represent a story."
+     :string-obj ("<<story (~a, by ~a):~2%~{~a~2%~}" story-title author contents)
+     :ctr-type macro
+     :lambda-list (id (&key author story-title start) &rest contents)
+     :ctr-body `(defparameter ,id (make-instance 'story
+                                                 :story-title ,story-title
+                                                 :author ,author
+                                                 :start ,start
+                                                 :contents (list ,@contents))))
+   #+end_src
+**** tests
+***** testing macroexpansion
+#+begin_src lisp
+(story historia1 (:author "Mark Twain"
+                  :story-title "El gato con botas"
+                  :start introduccion)
+       introduccion
+
+       (scene final (text "El final")
+              (text "Has llegado al final")
+              (text (b "THE END"))))
+
+#+end_src
+
+#+RESULTS:
+: HISTORIA1
+
+***** test viejito
+   #+begin_src lisp :results output :export code
+   (let* ((l1 (link test1 "click here to go to 'test1"))
+          (l2 (link test2 "click here " "to go to 'test2")))
+     (bformat t "testing the constructor for link")
+     (format t "~a~%" l1)
+     (format t "~a~%" l2))
+   #+end_src
+
+   #+RESULTS:
+   : ==================================
+   :  testing the constructor for link
+   : ==================================
+   : 
+   : <<link to (TEST1): (click here to go to 'test1)>>
+   : <<link to (test2): (click here  to go to 'test2)>>
+
 
 * code generation
 ** description
    In this section we add the code for the code-generation of the elements defined in the section AST.  So far (2024-10-25), we'll only export to undum, but in a future that may change.
 
+** language old-fashion html (html puro y duro)
+*** description
+En este /formato de salida/ cada escena es una página web.
+*** declaracion de la clase
+     #+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+     (defnode html-language ()
+       ()
+       :documentation "A class to represent the barebone html system.")
+     #+END_SRC
+**** constant
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+(defparameter html (make-instance 'html-language))
+#+END_SRC
+*** generation of basic elements (maybe this should be in gagm?  SÍ >:-|)
+**** description
+In this section we define the code generation for the basic elements as numbers, strings and symbols
+**** number
+***** code
+      #+begin_src lisp :results none :export code :tangle src/writer-html.lisp
+      (defmethod generate-code ((obj number) (lang html-language) stream)
+        (format stream "~a" obj))
+      #+end_src
+***** test
+      #+begin_src lisp :results output :export code :tangle src/tests.lisp
+      (generate-code 4 html t)
+      #+end_src
+
+      #+RESULTS:
+      : 4
+
+**** string
+***** code
+      #+begin_src lisp :results none :export code :tangle src/writer-html.lisp
+      (defmethod generate-code ((obj string) (lang html-language) stream)
+        (format stream "~a" obj))
+      #+end_src
+***** test
+      #+begin_src lisp :results output :export code :tangle src/tests.lisp
+      (generate-code "hello world!" html t)
+      #+end_src
+
+      #+RESULTS:
+      : hello world!
+
+**** symbol
+***** code
+      #+begin_src lisp :results none :export code :tangle src/writer-html.lisp
+      (defmethod generate-code ((obj symbol) (lang html-language) stream)
+        (format stream "~a" (symbol-name obj)))
+      #+end_src
+***** test
+      #+begin_src lisp :results output :export code :tangle src/tests.lisp
+      (generate-code 'hello-world html t)
+      #+end_src
+
+      #+RESULTS:
+      : HELLO-WORLD
+
+**** list
+***** code
+      #+begin_src lisp :results none :export code :tangle src/writer-html.lisp
+      (defmethod generate-code((node list)
+                               (lang html-language)
+                               stream)
+        (format stream "~{~a~}"
+                (mapcar (lambda (x) (gcodenil-exp x))
+                        node)))
+      #+end_src
+***** test
+      #+begin_src lisp :results output :export code :tangle src/tests.lisp
+      (generate-code (list 'hello-world 1 "two") html t)
+      (generate-code nil html t)
+      #+end_src
+**** nil
+***** description
+When we receive a nil, don't write anything
+***** code
+      #+begin_src lisp :results none :export code :tangle src/writer-html.lisp
+      (defmethod generate-code((node (eql nil))
+                               (lang html-language)
+                               stream)
+        (format stream ""))
+      #+end_src
+***** test
+      #+begin_src lisp :results output :export code :tangle src/tests.lisp
+      (generate-code nil html t)
+      #+end_src
+
+*** generación para cada nodo
+**** text
+***** code
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+(gcode text html-language ("<p>~a</p>") (contents))
+#+END_SRC
+***** test
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/tests.lisp
+(let* ((l1 (text "hola mundo")))
+  (generate-code l1 html t))
+#+END_SRC
+**** title
+***** code
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+(gcode title html-language ("<h1>~a</h1>") (contents))
+#+END_SRC
+***** test
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/tests.lisp
+(let* ((l1 (title "Titulo de ejemplo")))
+  (generate-code l1 html t))
+#+END_SRC
+**** subtitle
+***** code
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+(gcode subtitle html-language ("<h2>~a</h2>") (contents))
+#+END_SRC
+***** test
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/tests.lisp
+(let* ((l6 (subtitle "Subtitulo de ejemplo")))
+  (generate-code l6 html t))
+#+END_SRC
+**** bold-face
+***** code
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+(gcode bold-face html-language ("<b>~a</b>") (contents))
+#+END_SRC
+***** test
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/tests.lisp
+(let* ((l1 (b "hola mundo")))
+  (generate-code l1 html t))
+#+END_SRC
+**** italic-face
+***** code
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+(gcode italic-face html-language ("<i>~a</i>") (contents))
+#+END_SRC
+***** test
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/tests.lisp
+(let* ((l2 (it "texto en italica")))
+  (generate-code l2 html t))
+#+END_SRC
+**** tt-face
+***** code
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+(gcode tt-face html-language ("<tt>~a</tt>") (contents))
+#+END_SRC
+***** test
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/tests.lisp
+(let* ((l3 (tt "text for code")))
+  (generate-code l3 html t))
+#+END_SRC
+**** strike-face
+***** code
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+(gcode strike-face html-language ("<del>~a</del>") (contents))
+#+END_SRC
+***** test
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/tests.lisp
+(let* ((l4 (strike "striked text")))
+  (generate-code l4 html t))
+#+END_SRC
+**** underline-face
+***** code
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+(gcode underline-face html-language ("<ins>~a</ins>") (contents))
+#+END_SRC
+***** test
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/tests.lisp
+(let* ((l5 (underline "underlined text")))
+  (generate-code l5 html t))
+#+END_SRC
+**** newline
+***** code
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+(gcode newline html-language ("<br>") ())
+#+END_SRC
+***** test
+#+BEGIN_SRC lisp +n -r :results output :exports none :tangle src/tests.lisp
+(let* ((l1 (newline)))
+  (generate-code l1 html t))
+#+END_SRC
+
+#+RESULTS:
+: <br>
+
+**** item
+***** code
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+(gcode item html-language ("<li>~a</li>") (contents))
+#+END_SRC
+***** test
+#+BEGIN_SRC lisp +n -r :results output :exports none :tangle src/tests.lisp
+(let* ((l1 (item "Hello itemized world"))
+       (l2 (item "Hello " (b "itemized") " world")))
+  (generate-code l1 html t)
+  (terpri)
+  (generate-code l2 html t))
+#+END_SRC
+
+#+RESULTS:
+: <li>Hello itemized world</li>
+**** ordered-list
+***** code
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+(defmethod generate-code ((node ordered-list)
+                          (lang html-language)
+                          stream)
+  (format stream "<ol>~%")
+  (loop for item in (contents node)
+        do (format stream "  ~a~%" (gcodenil-exp item)))
+  (format stream "</ol>~%"))
+#+END_SRC
+***** test
+#+BEGIN_SRC lisp +n -r :results output :exports none :tangle src/tests.lisp
+(let* ((l1 (enumerate (item "Element 1")
+                      (item "Element 2"))))
+  (generate-code l1 html t))
+#+END_SRC
+
+#+RESULTS:
+: <li>Hello itemized world</li>
+**** unordered-list
+***** code
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+(defmethod generate-code ((node unordered-list)
+                          (lang html-language)
+                          stream)
+  (format stream "<ul>~%")
+  (loop for item in (contents node)
+        do (format stream "  ~a~%" (gcodenil-exp item)))
+  (format stream "</ul>~%"))
+#+END_SRC
+***** test
+#+BEGIN_SRC lisp +n -r :results output :exports none :tangle src/tests.lisp
+(let* ((list2 (itemize (item "Element 1")
+                      (item "Element 2"))))
+  (generate-code list2 html t))
+#+END_SRC
+
+#+RESULTS:
+: <ul>
+:   <li>Element 1</li>
+:   <li>Element 2</li>
+: </ul>
+
+**** link
+***** code
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+(gcode link html-language ("<a href='~a.html'>~a</a>") (target contents))
+#+END_SRC
+***** test
+#+BEGIN_SRC lisp +n -r :results output :exports none :tangle src/tests.lisp
+(let* ((l1 (link final "listo para terminar")))
+  (generate-code l1 html t))
+#+END_SRC
+
+#+RESULTS:
+: <a href='FINAL'>listo para terminar</a>
+**** action
+***** code
+#+begin_src lisp :results none :export code :tangle src/writer-html.lisp
+(gcode action html-language ("<div class='~a' style='cursor: pointer;' onclick=\"this.innerHTML=\'~a\'\">~a</div>") (action-id contents trigger-text))
+#+end_src
+**** image
+#+begin_src lisp :results none :export code :tangle src/writer-html.lisp
+  (defmethod generate-code ((node image) (lang html-language) stream)
+   (let* ((align-style (case (align node)
+			 (:center "display: block; margin-left: auto; margin-right: auto;")
+			 (:left "float: left;")
+			 (:right "float: right;")
+			 (t "")))
+	  (size-style (if (size node)
+			(format nil "width: ~a%; " (size node))
+			"")))  ; Empty string when no size
+     (format stream "<img src=\"~a\" alt=\"~a\" style=\"~a ~a\">"
+	     (src node)
+	     (alt-text node)
+	     align-style
+	     size-style)))
+#+end_src
+**** sound
+#+begin_src lisp :results none :export code :tangle src/writer-html.lisp
+(defmethod generate-code ((node start-sound) (lang html-language) stream)
+  (format stream "<audio controls~a>~%  <source src=\"~a\" type=\"audio/mpeg\">~%  ~a~%</audio>"
+          (if (alt-text node) (format nil " title=\"~a\"" (alt-text node)) "")
+          (src node)
+          (if (alt-text node) 
+              (format nil "Your browser does not support the audio element (~a)." (alt-text node))
+              "Your browser does not support the audio element.")))
+#+end_src
+**** video
+#+begin_src lisp :results none :export code :tangle src/writer-html.lisp
+(defmethod generate-code ((node video) (lang html-language) stream)
+  (format stream "<video controls~a>~%  <source src=\"~a\" type=\"video/mp4\">~%  ~a~%</video>"
+          (if (alt-text node) (format nil " title=\"~a\"" (alt-text node)) "")
+          (src node)
+          (if (alt-text node) 
+              (format nil "Your browser does not support the video element (~a)." (alt-text node))
+              "Your browser does not support the video element.")))
+#+end_src
+**** change-bg-color
+#+begin_src lisp :results none :export code :tangle src/writer-html.lisp
+(defmethod generate-code ((node change-bg-color) (lang html-language) stream)
+  (format stream "<div style=\"position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: ~a; z-index: -1;\"></div>"
+          (color node)))
+#+end_src
+
+**** change-bg-image
+#+begin_src lisp :results none :export code :tangle src/writer-html.lisp
+(defmethod generate-code ((node change-bg-image) (lang html-language) stream)
+  (format stream "<div style=\"~
+                 position: fixed; ~
+                 top: 0; ~
+                 left: 0; ~
+                 width: 100%; ~
+                 height: 100%; ~
+                 z-index: -1; ~
+                 background-image: url('~a'); ~
+                 background-repeat: no-repeat; ~
+                 background-position: center; ~
+                 background-size: cover; ~
+                 background-attachment: fixed;\"></div>"
+          (image-url node)))
+#+end_src
+**** font
+#+begin_src lisp :results none :export code :tangle src/writer-html.lisp
+  (defmethod generate-code ((node font) (lang html-language) stream)
+    (format stream "<p style=\"font-family: ~a;\">"
+	    (new-font node))
+ (loop for item in (contents node)
+        do (format stream "~a~%" (gcodenil-exp item)))
+  (format stream "</p>~%"))
+#+end_src
+**** whiteboard
+#+begin_src lisp :results none :export code :tangle src/writer-html.lisp
+(defmethod generate-code ((node whiteboard) (lang html-language) stream)
+  (format stream "<section class=\"whiteboard-section\">~%")
+  (format stream "  <div class=\"whiteboard-wrap\">~%")
+  (format stream "    <div class=\"whiteboard-container\">~%")
+  (format stream "      <div class=\"whiteboard-header\"></div>~%")
+  (format stream "      <div class=\"whiteboard-content\">~%")
+  (format stream "        <div class=\"content-title\">~%~a~%</div>~%" (wb-title node))
+  (format stream "        <div class=\"content-body\">~%")
+  
+  ;; Generate content
+  (loop for content in (contents node)
+        do (format stream "          ~a~%" (gcodenil-exp content)))
+  
+  ;; Add author if specified
+  (when (author node)
+    (format stream "          <p class=\"quote-author\">~a</p>~%" (author node)))
+  
+  (format stream "        </div>~%")
+  (format stream "        <div class=\"whiteboard-spacer\"></div>~%")
+  (format stream "      </div>~%")
+  (format stream "      <div class=\"whiteboard-footer\"></div>~%")
+  (format stream "    </div>~%")
+  (format stream "  </div>~%")
+  (format stream "</section>~%"))
+#+end_src
+
+**** math-inline
+#+begin_src lisp :results none :export code :tangle src/writer-html.lisp
+(gcode math-inline html-language ("$~a$") (math))
+#+end_src
+**** math-center
+#+begin_src lisp :results none :export code :tangle src/writer-html.lisp
+(defmethod generate-code ((node math-center) (lang html-language) stream)
+  (format stream "<div style=\"text-align: center; margin: 1em 0;\">")
+  (format stream "\\[~a\\]" 
+          (math node))
+  (format stream "</div>"))
+#+end_src
+**** code-node
+#+begin_src lisp :results none :export code :tangle src/writer-html.lisp
+(defmethod generate-code ((node code-node) (lang html-language) stream)
+  (format stream "<pre><code class=\"language-~a\">~a</code></pre>~%"
+          (string-downcase (language node))
+          
+           (format nil "~a~%"(code node)))
+  
+  ;; Add highlight.js initialization if not already added
+  (format stream "<script>
+  if (!window.hljsInitialized) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css';
+    document.head.appendChild(link);
+    
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js';
+    script.onload = () => { 
+      hljs.highlightAll();
+      window.hljsInitialized = true;
+    };
+    document.head.appendChild(script);
+  }
+  </script>"))
+#+end_src
+**** scene
+***** description
+Ojo, aquí vamos a asumir que cada escena es una página web, que se llama (id).html.
+
+Eso significa que VAMOS A ASUMIR que en este caso stream es el nombre de un directorio.
+
+***** code
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+ (defmethod generate-code ((node scene)
+			  (lang html-language)
+			  stream)
+
+ ;; lo primero es crear el fichero correspondiente
+   (let* ((filename (concatenate 'string stream (symbol-name (id node)) ".html")))
+	(with-open-file (f filename
+			 :direction :output
+			 :if-exists :supersede)
+		(format f "<html>~%
+		<header>~%
+	          <link rel=\"stylesheet\" href=\"wb-styles.css\">~%
+	            <script>MathJax = {tex: {inlineMath: [['$', '$']]}};~%
+	            </script>~%
+                    <script id=\"MathJax-script\" async src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js\">~%
+                    </script>  ~%
+                 </header>~%
+              <body>~%")
+	(loop for item in (contents node) doing
+		  (format f "  ~a~%" (gcodenil-exp item)))
+	          (format f " </body>~%</html>"))))
+#+END_SRC
+***** test
+#+BEGIN_SRC lisp +n -r :results output :exports none :tangle src/tests.lisp
+(let* ((l1 (scene ejemplo
+                  "Texto de ejemplo" (newline)
+                  (link final "Vamos para el final") (newline)
+                  "NOT THE END"))
+       (l2 (scene final
+                  "Este es el final" (newline)
+                  (link ejemplo "O puedes regresar al princpio") (newline)
+                  "THE END")))
+  (generate-code l1 html "/tmp/")
+  (generate-code l2 html "/tmp/"))
+#+END_SRC
+
+#+RESULTS:
+
+**** story
+***** code
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-html.lisp
+  (defmethod generate-code ((node story) (lang html-language) stream)
+  "Generates HTML files for all scenes in the story including whiteboard CSS."
+  ;; First create the output directory if it doesn't exist
+  (ensure-directories-exist stream)
+  
+  ;; Generate wb-styles.css file
+  (with-open-file (css (merge-pathnames "wb-styles.css" stream)
+                      :direction :output
+                      :if-exists :supersede)
+    (format css "@import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&display=swap');
+
+.whiteboard-section {
+background-image: url(\"bg-wall.jpg\");
+background-repeat: no-repeat;
+background-size: cover;
+background-position: bottom center;
+padding: 2em 4em 6.9em 4em; 
+}
+
+.whiteboard-wrap {
+margin: 0 auto;
+max-width: 940px;
+padding: 20px;
+border-radius: 20px;
+background-color: rgba(255,255,255,0.60);
+box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+}
+
+.whiteboard-container {
+position: relative;
+border-radius: 5px;
+border: 14px solid #c8c9ca;
+box-shadow: 0 0 0 1px #ffffff, 0 0 0 14px #babcbd, inset -1px 2px 2px #edeff0, 0px 5px 15px rgba(0, 0, 0, 0.35);
+overflow: hidden;
+background: #FFFFFF;
+background: radial-gradient(at left top, #FFFFFF, #FDFCFC);
+}
+
+.whiteboard-header {
+height: 50px;
+background-image: url(\"magnet-buttons.png\");
+background-repeat: no-repeat;
+background-position: bottom right;
+margin-right: 10px;
+}
+
+.whiteboard-footer {
+position: absolute;
+width: 100%;
+bottom: 0px;
+height: 36px;
+background-image: url(\"marker-and-eraser.png\");
+background-repeat: no-repeat;
+background-position: center;
+background-size: 300px 36px;
+}
+
+.whiteboard-content {
+padding: 1em 2em;
+font-family: 'Gochi Hand', cursive;
+font-size: 1.4vw;
+line-height: 1.5vw;
+color: #3a4ba1; 
+}
+
+.content-title {
+border-bottom: 1px dashed #CCCCCC;
+padding-bottom: 2px;
+margin-bottom: 1em;
+}
+
+.quote-author {
+text-align: right;
+}
+
+@media only screen and (max-width: 798px) {
+.whiteboard-content {
+font-size: 16px !important;
+line-height: 16px;
+}
+}"))
+
+  ;; Generate an index.html file that links to all scenes
+  (with-open-file (index (merge-pathnames "index.html" stream)
+                      :direction :output
+                      :if-exists :supersede)
+    (format index "<html>~%<head>~%<title>~a</title>~%<link rel=\"stylesheet\" href=\"wb-styles.css\">~%</head>~%<body>" (story-title node))
+    (format index "<h1>~a</h1>" (story-title node))
+    (format index "<p>By ~a</p><ul>" (author node))
+    
+    ;; Create links to all scenes
+    (loop for scene in (contents node)
+          when (typep scene 'scene)
+          do (format index "<li><a href='~a.html'>~a</a></li>" 
+                     (symbol-name (id scene)) 
+                     (symbol-name (id scene))))
+    
+    (format index "</ul></body></html>"))
+  
+  ;; Generate HTML files for each scene
+  (loop for element in (contents node)
+        when (typep element 'scene)
+        do (generate-code element html stream)))
+#+END_SRC
+
 ** language undum
+
 *** description
     In this section I'll add the code-generation routines for undum.  The src blocks will be tangled to writer-undum.lisp.
 
@@ -991,43 +2216,43 @@ In fact, an actual initialize-system function should create the html AND copy al
       : ================================================
       : 
       
-** code generation for undum
-*** generation of basic elements (maybe this should be in gagm?)
-**** description
+*** code generation for undum
+**** generation of basic elements (maybe this should be in gagm?)
+***** description
 In this section we define the code generation for the basic elements as numbers, strings and symbols
-**** number
-***** code
+***** number
+****** code
       #+begin_src lisp :results none :export code :tangle src/writer-undum.lisp
       (defmethod generate-code ((obj number) (lang undum-language) stream)
         (format stream "~a" obj))
       #+end_src
-***** test
+****** test
       #+begin_src lisp :results output :export code :tangle src/tests.lisp
       (generate-code 4 undum t)
       #+end_src
-**** string
-***** code
+***** string
+****** code
       #+begin_src lisp :results none :export code :tangle src/writer-undum.lisp
       (defmethod generate-code ((obj string) (lang undum-language) stream)
         (format stream "~a" obj))
       #+end_src
-***** test
+****** test
       #+begin_src lisp :results output :export code :tangle src/tests.lisp
       (generate-code "hello world!" undum t)
       #+end_src
 
-**** symbol
-***** code
+***** symbol
+****** code
       #+begin_src lisp :results none :export code :tangle src/writer-undum.lisp
       (defmethod generate-code ((obj symbol) (lang undum-language) stream)
         (format stream "~a" (symbol-name obj)))
       #+end_src
-***** test
+****** test
       #+begin_src lisp :results output :export code :tangle src/tests.lisp
       (generate-code 'hello-world undum t)
       #+end_src
-**** list
-***** code
+***** list
+****** code
       #+begin_src lisp :results none :export code :tangle src/writer-undum.lisp
       (defmethod generate-code((node list)
                                (lang undum-language)
@@ -1036,30 +2261,30 @@ In this section we define the code generation for the basic elements as numbers,
                 (mapcar (lambda (x) (gcodenil-exp x))
                         node)))
       #+end_src
-***** test
+****** test
       #+begin_src lisp :results output :export code :tangle src/tests.lisp
       (generate-code (list 'hello-world 1 "two") undum t)
       (generate-code nil undum t)
       #+end_src
-**** nil
-***** description
+***** nil
+****** description
 When we receive a nil, don't write anything
-***** code
+****** code
       #+begin_src lisp :results none :export code :tangle src/writer-undum.lisp
       (defmethod generate-code((node (eql nil))
                                (lang undum-language)
                                stream)
         (format stream ""))
       #+end_src
-***** test
+****** test
       #+begin_src lisp :results output :export code :tangle src/tests.lisp
       (generate-code nil undum t)
       #+end_src
 
-*** basic-situation
-**** description
+**** basic-situation
+***** description
 In this section we define how to generate code for a basic-situation.
-**** code
+***** code
       #+begin_src lisp :results none :export code :tangle src/writer-undum.lisp
       (defmethod generate-code ((obj basic-situation) (lang undum-language) stream)
         (format stream
@@ -1069,7 +2294,7 @@ In this section we define how to generate code for a basic-situation.
       (id obj)
       (mapcar (lambda (x) (generate-code x lang nil)) (contents obj))))
       #+end_src
-**** test
+***** test
       #+begin_src lisp :results output :export code :tangle src/tests.lisp
       (let* ((bs1 (basic-situation 'test1
                                    "hello world,"
@@ -1088,14 +2313,14 @@ In this section we define how to generate code for a basic-situation.
       #+RESULTS:
       : <a href='START'>al comienzo otra vez...</a>
 
-*** link
-**** description
+**** link
+***** description
 In this section we define how to generate code for a link.
-**** +code v1 (with gcode: no css-classes)+
+***** +code v1 (with gcode: no css-classes)+
       #+begin_src lisp :results none 
       (gcode link undum-language ("<a href='~a'>~a</a>") (target contents))
       #+end_src
-**** code v2 (with macro generate-code-for-html-tag)
+***** code v2 (with macro generate-code-for-html-tag)
       #+begin_src lisp :results none :export code :tangle src/writer-undum.lisp
       (generate-code-for-html-tag link
          (format stream "<a class='~a' href='~a'>~a</a>"
@@ -1103,7 +2328,7 @@ In this section we define how to generate code for a link.
                  (gcodenil target)
                  contents))
       #+end_src
-**** test
+***** test
       #+begin_src lisp :results output :export code :tangle src/tests.lisp
       (let* ((l1 (link "test1" "click here to go to 'test1"))
                 (l2 (link "test2" :transient "click here to go to 'test2"))
@@ -1119,20 +2344,20 @@ In this section we define how to generate code for a link.
       #+RESULTS:
       : <a href='START'>al comienzo otra vez...</a>
 
-*** newline-in-js-class
-**** description
+**** newline-in-js-class
+***** description
 In this section we define how to generate code for a newline-in-js
-**** code
+***** code
       #+begin_src lisp :results none :export code :tangle src/writer-undum.lisp
       (defmethod generate-code ((obj newline-in-js-class) (lang undum-language) stream)
         (format stream "\\~%"))
       #+end_src
-**** test
-***** simple test1
+***** test
+****** simple test1
       #+begin_src lisp :results output :export code :tangle src/tests.lisp
       (generate-code (nline) undum t)
       #+end_src
-***** test within a situation
+****** test within a situation
       #+begin_src lisp :results output :export code :tangle src/tests.lisp
       (let* ((bs1 (basic-situation "start"
                                    "<h1>Un juego con una sola situación</h1>"
@@ -1152,10 +2377,10 @@ In this section we define how to generate code for a newline-in-js
         (generate-code bs2 undum t))
       #+end_src
 
-*** story
-**** description
+**** story
+***** description
 In this section we define how to generate code for a story.  This means to create the whole .js file.
-**** code
+***** code
       #+begin_src lisp :results none :export code :tangle src/writer-undum.lisp
       (defmethod generate-code ((obj story-class) (lang undum-language) stream)
         "This is taken verbatim from the .js file that comes with the example in undum."
@@ -1297,8 +2522,8 @@ In this section we define how to generate code for a story.  This means to creat
   
         )
       #+end_src
-**** test
-***** test within a story
+***** test
+****** test within a story
       #+begin_src lisp :results output :export code :tangle src/tests.lisp
       (let* ((bs1 (basic-situation "startup"
                                    "<h1>Un juego con una sola situación</h1>"
@@ -1318,7 +2543,7 @@ In this section we define how to generate code for a story.  This means to creat
         (generate-code story1 undum t))
       #+end_src
 
-***** test within a story to a file
+****** test within a story to a file
       #+begin_src lisp :results output :export code :tangle src/tests.lisp
       (let* ((bs1 (basic-situation "start"
                                    "<h1>Un juego con una sola situación</h1>"
@@ -1346,14 +2571,14 @@ In this section we define how to generate code for a story.  This means to creat
       : =============================================
       : 
 
-*** html-h1
-**** description
+**** html-h1
+***** description
 In this section we define how to generate code for a h1 tag.
-**** +code v1 (with gcode)+
+***** +code v1 (with gcode)+
       #+begin_src lisp :results none 
       (gcode html-h1 undum-language ("<h1 class='~a'>~a</h1>") (css-classes contents))
       #+end_src
-**** +code v2 (with a generate-code method)+
+***** +code v2 (with a generate-code method)+
       #+begin_src lisp :results none 
       (defmethod generate-code ((node html-h1) (lang undum-language) stream)
         (format stream "<h1 class='~a'>~a</h1>"
@@ -1366,12 +2591,12 @@ In this section we define how to generate code for a h1 tag.
                 (gcodenil contents)))
 
       #+end_src
-**** code v3 (with the macro generate-code-for-simple-html-tag)
+***** code v3 (with the macro generate-code-for-simple-html-tag)
       #+begin_src lisp :results none :export code :tangle src/writer-undum.lisp
       (generate-code-for-simple-html-tag html-h1 "h1")
 
       #+end_src
-**** test v1
+***** test v1
       #+begin_src lisp :results output :export code :tangle src/tests.lisp
       (let* ((l1 (h1 "This is a test for a header"))
              (l2 (h1 "This is a test" " for a header" " with list as contents"))
@@ -1390,18 +2615,18 @@ In this section we define how to generate code for a h1 tag.
       #+RESULTS:
       : <h1>This is a test for a header</h1>
 
-*** html-p
-**** description
+**** html-p
+***** description
 In this section we define how to generate code for a p
-**** +code v1 (with gcode)+
+***** +code v1 (with gcode)+
       #+begin_src lisp :results none
       (gcode html-p undum-language ("<p>~a</p>") (contents))
       #+end_src
-**** code v2 (with macro generate-code-for-simple-html-tag)
+***** code v2 (with macro generate-code-for-simple-html-tag)
       #+begin_src lisp :results none :export code :tangle src/writer-undum.lisp
       (generate-code-for-simple-html-tag html-p "p")
       #+end_src
-**** test
+***** test
       #+begin_src lisp :results output :export code :tangle src/tests.lisp
       (let* ((l1 (p "This is a test for a paragraph"))
              (l2 (p "This is a test" " for a paragraph" " with list as contents"))
@@ -1420,46 +2645,46 @@ In this section we define how to generate code for a p
       #+RESULTS:
       : <h1>This is a test for a header</h1>
       
-*** html-br
-**** description
+**** html-br
+***** description
 In this section we define how to generate code for a br tag. 
-**** code
+***** code
  #+begin_src lisp :results none :export code :tangle src/writer-undum.lisp
    (defmethod generate-code ((obj html-br) (lang undum-language) stream)
     (format stream "<br>"))
 #+end_src
-**** test
+***** test
   #+begin_src lisp :results output :export code :tangle src/tests.lisp
     (let* ((test-paragraph (p "First line" (br) "Second line")))
       (bformat t "Testing br tag")
       (generate-code test-paragraph undum t))
 #+end_src
-*** html-ul
-**** description
+**** html-ul
+***** description
 In this section we define how to generate code for an ul
-**** code
+***** code
 #+begin_src lisp :results none :export code :tangle src/writer-undum.lisp
   (generate-code-for-simple-html-tag html-ul "ul")
 #+end_src
-**** tests
+***** tests
 -- tests in li
-*** html-ol
-**** description
+**** html-ol
+***** description
 In this section we define how to generate code for an ol
-**** code
+***** code
 #+begin_src lisp :results none :export code :tangle src/writer-undum.lisp
   (generate-code-for-simple-html-tag html-ol "ol")
 #+end_src
-**** tests
+***** tests
 -- tests in li
-*** html-li
-**** description
+**** html-li
+***** description
 In this section we define how to generate code for a li
-**** code
+***** code
 #+begin_src lisp :results none :export code :tangle src/writer-undum.lisp
 (generate-code-for-simple-html-tag html-li "li")
 #+end_src
-**** tests
+***** tests
 #+begin_src lisp :results output :export code :tangle src/tests.lisp
 (let* (;; Test basic list items
        (simple-item (li "Simple list item"))
@@ -1472,7 +2697,6 @@ In this section we define how to generate code for a li
        (styled-list (ul :menu (li "Home") (li "About") (li "Contact")))
        (nested-list (ul (li "Top level" (ul (li "Nested 1") (li "Nested 2"))))))
 
-  
   (bformat t "Testing individual list items")
   (generate-code simple-item undum t) (terpri)
   (generate-code styled-item undum t) (terpri)
@@ -1486,10 +2710,10 @@ In this section we define how to generate code for a li
   )
 #+end_src
 
-*** html-button
-**** description
+**** html-button
+***** description
 In this section we define how to generate code for an html button
-**** code
+***** code
 #+begin_src lisp :results none :export code :tangle src/writer-undum.lisp
   (generate-code-for-html-tag html-button
     (format stream "<button class='~a' onclick='this.disabled=true; ~(~a~)()'>~a</button>"
@@ -1497,7 +2721,345 @@ In this section we define how to generate code for an html button
 	    (gcodenil function-name)
 	    contents))
 #+end_src
-**** tests
+***** tests
+
+** language LaTeX
+*** description
+En este /formato de salida/ cada escena es una página y cada historia es un documento
+*** declaracion de la clase
+ #+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-latex.lisp
+     (defnode latex-language ()
+       ()
+       :documentation "A class to represent the latex language.")
+     #+END_SRC
+**** constant
+#+BEGIN_SRC lisp +n -r :results none :exports none :tangle src/writer-latex.lisp
+(defparameter latex (make-instance 'latex-language))
+#+END_SRC
+*** generation of basic elements
+In this section we define the code generation for the basic elements as numbers, strings and symbols
+**** number
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(defmethod generate-code ((obj number) (lang latex-language) stream)
+  (format stream "~a" obj))
+#+end_src
+**** string
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(defmethod generate-code ((obj string) (lang latex-language) stream)
+  (format stream "~a" obj))
+#+end_src
+**** symbol
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(defmethod generate-code ((obj symbol) (lang latex-language) stream)
+  (format stream "~a" (symbol-name obj)))
+#+end_src
+**** list
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(defmethod generate-code ((node list) (lang latex-language) stream)
+  (format stream "~{~a~}" (mapcar (lambda (x) (gcodenil-exp x)) node)))
+#+end_src
+**** nil
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(defmethod generate-code ((node (eql nil)) (lang latex-language) stream)
+  (format stream ""))
+#+end_src
+*** generación para cada nodo
+**** text
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(gcode text latex-language ("~a~%") (contents))
+#+end_src
+**** title
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(gcode title latex-language ("\\section*{~a}~%") (contents))
+#+end_src
+**** subtitle
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(gcode subtitle latex-language ("\\subsection*{~a}~%") (contents))
+#+end_src
+**** bold-face
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(gcode bold-face latex-language ("\\textbf{~a}") (contents))
+#+end_src
+**** italic-face
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(gcode italic-face latex-language ("\\textit{~a}") (contents))
+#+end_src
+**** tt-face
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(gcode tt-face latex-language ("\\texttt{~a}") (contents))
+#+end_src
+**** strike-face
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(gcode strike-face latex-language ("\\sout{~a}") (contents))
+#+end_src
+**** underline-face
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(gcode underline-face latex-language ("\\underline{~a}") (contents))
+#+end_src
+
+**** newline
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+  (gcode newline latex-language ("~%\\vspace{\\baselineskip}~%") ())
+#+end_src
+**** item
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(gcode item latex-language ("\\item ~a") (contents))
+#+end_src
+**** ordered-list
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(defmethod generate-code ((node ordered-list) (lang latex-language) stream)
+  (format stream "\\begin{enumerate}~%")
+  (loop for item in (contents node)
+        do (format stream "  ~a~%" (gcodenil-exp item)))
+  (format stream "\\end{enumerate}~%"))
+#+end_src
+**** unordered-list
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(defmethod generate-code ((node unordered-list) (lang latex-language) stream)
+  (format stream "\\begin{itemize}~%")
+  (loop for item in (contents node)
+        do (format stream "  ~a~%" (gcodenil-exp item)))
+  (format stream "\\end{itemize}~%"))
+#+end_src
+***** test
+#+BEGIN_SRC lisp +n -r :results output :exports none :tangle src/tests.lisp
+(let* ((list2 (itemize (item "Element 1")
+                      (item "Element 2"))))
+  (generate-code list2 html t))
+#+END_SRC
+
+#+RESULTS:
+: <ul>
+:   <li>Element 1</li>
+:   <li>Element 2</li>
+: </ul>
+
+**** link
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(gcode link latex-language ("\\hyperref[~a]{~a}") (target contents))
+#+end_src
+**** LaTeX escaping utility
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+  (defun escape-latex (string)
+    "Escape special LaTeX characters in a string."
+    (with-output-to-string (out)
+      (loop for char across string
+	    do (case char
+		 (#\\ (write-string "\\textbackslash{}" out))
+		 (#\{ (write-string "\\{" out))
+		 (#\} (write-string "\\}" out))
+		 (#\$ (write-string "\\$" out))
+		 (#\& (write-string "\\&" out))
+		 (#\% (write-string "\\%" out))
+		 (#\_ (write-string "\\_" out))
+		 (#\^ (write-string "\\^{}" out))
+		 (#\~ (write-string "\\~{}" out))
+		 (#\< (write-string "\\textless{}" out))
+		 (#\> (write-string "\\textgreater{}" out))
+		 (#\| (write-string "\\textbar{}" out))
+		 (otherwise (write-char char out))))))
+#+end_src
+**** action 
+***** code
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(defmethod generate-code ((node action) (lang latex-language) stream)
+  ;; Generate the clickable trigger text
+  (format stream "\\hyperref[~a]{~a}"
+          (target-id node)
+          (escape-latex (trigger-text node)))
+  (format stream "\\label{~a}" (action-id node))
+  
+  ;; Generate the action content on a new page
+  (format stream "\\newpage~%")
+  (format stream "\\section*{~a}~%" (escape-latex (trigger-text node)))
+  (format stream "\\label{~a}~%" (target-id node))
+  
+  ;; Output all contents
+  (loop for content in (contents node)
+        do (format stream "~a~%" (gcodenil-exp content)))
+  
+  ;; Add return link at bottom
+  (format stream "\\vspace{1em}\\par\\noindent\\hyperref[~a]{\\underline{Go back}}~%"
+          (action-id node))
+  (format stream "\\newpage~%"))
+#+end_src
+**** image
+***** TODO add alt-text as iamge caption
+***** code
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(defmethod generate-code ((node image) (lang latex-language) stream)
+  (let* ((align-env (case (align node)
+                      (:center "center")
+                      (:left "flushleft")
+                      (:right "flushright")
+                      (t "")))
+         (size-option (if (size node)
+                        (format nil "[width=~a\\textwidth]" (/ (size node) 100.0))
+                        "")))  ; Empty string when no size
+    (when align-env
+      (format stream "\\begin{~a}~%" align-env))
+    
+    (format stream "\\includegraphics~a{~a}~%" 
+            size-option
+            (src node))
+    
+    (when align-env
+      (format stream "\\end{~a}~%" align-env))))
+#+end_src
+**** sound
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(gcode start-sound latex-language ("~% ~a ~%") (alt-text))
+#+end_src
+**** video
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(gcode video latex-language ("~% ~a ~%") (alt-text))
+#+end_src
+**** change-bg-color
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(defmethod generate-code ((node change-bg-color) (lang latex-language) stream)
+  (format stream "\\pagecolor{~a}~%" (color node)))
+#+end_src
+**** change-bg-image
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(defmethod generate-code ((node change-bg-image) (lang latex-language) stream)
+  (format stream "\\backgroundsetup{~%")
+  (format stream "  scale=1,~%")
+  (format stream "  angle=0,~%")
+  (format stream "  opacity=1,~%")
+  (format stream "  contents={\\includegraphics[width=\\paperwidth,height=\\paperheight]{~a}}~%"
+          (image-url node))
+  (format stream "}~%"))
+#+end_src
+**** whiteboard
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(defmethod generate-code ((node whiteboard) (lang latex-language) stream)
+  (format stream "~%\\begin{tcolorbox}[~%")
+  (format stream "  enhanced,~%")
+  (format stream "  colback=white,~%")
+  (format stream "  colframe=lightmint,~%")
+  (format stream "  arc=4pt,~%")
+  (format stream "  boxrule=1pt,~%")
+  (format stream "  drop fuzzy shadow,~%")
+  (format stream "  title=~a,~%" (wb-title node))
+  (format stream "  fonttitle=\\bfseries,~%")
+  (format stream "  coltitle=black]~%")
+  
+  ;; Generate content
+  (loop for content in (contents node)
+        do (format stream "~a~%" (gcodenil-exp content)))
+   
+    (format stream "\\vspace{1em}\\par\\noindent\\raggedleft\\textit{~a}~%" 
+           (author node))
+  
+  (format stream "\\end{tcolorbox}~%"))
+#+end_src
+**** math-inline
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(gcode math-inline latex-language ("$~a$") (math))
+#+end_src
+**** math-center
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(gcode math-center latex-language ("~%$$~a$$~%") (math))
+#+end_src
+**** code-node
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+  (defun language-mapping (lang)
+    "Maps common language names to lstlistings compatible names"
+    (case (intern (string-upcase lang) :keyword)
+      (:python "Python")
+      (:javascript "JavaScript")
+      (:lisp "Lisp")
+      (:c++ "C++")
+      (:java "Java")
+      (:html "HTML")
+      (:css "CSS")
+      (t (string-capitalize lang))))
+
+  (defmethod generate-code ((node code-node) (lang latex-language) stream)
+  (format stream "\\begin{lstlisting}[language=~a]~%~a~%\\end{lstlisting}"
+          (language-mapping (language node))
+           (format nil "~a"(code node))))
+#+end_src
+
+**** scene
+***** description
+In this section we will generate code for a scene in LaTeX language.
+Every scene will be a different page.
+***** code
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+(defmethod generate-code ((node scene) (lang latex-language) stream)
+  (let ((filename (merge-pathnames 
+                   (format nil "~a.tex" (symbol-name (id node)))
+                   stream)))
+    (ensure-directories-exist filename)
+    (with-open-file (f filename
+                       :direction :output
+                       :if-exists :supersede)
+      (format f "\\section{~a} \\label{~a} ~%" (escape-latex (symbol-name (id node))) (escape-latex (symbol-name (id node))) )
+      (loop for item in (contents node)
+            do (format f "~a~%" (gcodenil-exp item))))))
+#+end_src
+**** story
+***** description
+Each story in LaTeX will be a different .tex document
+***** code
+#+begin_src lisp :results none :export code :tangle src/writer-latex.lisp
+  (defmethod generate-code ((node story) (lang latex-language) stream)
+    "Generates LaTeX files for all scenes in the story."
+    ;; First create the output directory if it doesn't exist
+    (ensure-directories-exist stream)
+
+    ;; Generate main.tex file that includes all scene files
+    (let ((main-file (merge-pathnames "main.tex" stream)))
+      (with-open-file (main main-file
+			    :direction :output
+			    :if-exists :supersede)
+	(format main "\\documentclass{article}~%")
+	(format main "\\usepackage{hyperref}~%")
+	(format main "\\usepackage{graphicx}~%")
+	(format main "\\usepackage{xcolor}~%")
+	(format main "\\usepackage{tcolorbox}~%")
+	(format main "\\tcbuselibrary{skins}~%")
+	(format main "\\definecolor{lightmint}{rgb}{0.63, 0.79, 0.95}~%")
+	(format main "\\usepackage{background}~%")
+        (format main "\\backgroundsetup{contents={}}~%")
+	(format main "\\usepackage[normalem]{ulem}~%")
+	(format main "\\usepackage{listings}~%")
+	(format main "~%\\lstset{
+			basicstyle=\\ttfamily\\small,
+			keywordstyle=\\color{blue},
+			commentstyle=\\color{green},
+			stringstyle=\\color{orange},
+			showstringspaces=false,
+			breaklines=true,
+			frame=single
+		    }~%")
+
+	(format main "\\begin{document}~%")
+	(format main "\\title{~a}~%" (escape-latex (story-title node)))
+	(format main "\\author{~a}~%" (escape-latex (author node)))
+	(format main "\\maketitle~%")
+
+	;; Generate table of contents
+	(format main "\\tableofcontents~%")
+	(format main "\\newpage~%")
+
+	;; Include all scene files
+	(loop for element in (contents node)
+	      when (typep element 'scene)
+		do (format main "\\newpage
+	  \\input{~a}~%" (symbol-name (id element))))
+
+	(format main "\\end{document}~%"))
+
+      ;; Generate LaTeX files for each scene
+      (loop for element in (contents node)
+	    when (typep element 'scene)
+	      do (generate-code element latex stream)))
+
+    ;; Return the path to the main file
+    (merge-pathnames "main.tex" stream))
+#+end_src
 
 
 * macros to create situations 
@@ -1646,6 +3208,7 @@ A function to clear the whiteboard
 
 ** tests
    
+
 * example to test a story
 ** description
 In this section I'm going to have story written in clif.  This will be the main test for clif :-)
@@ -1720,8 +3283,4 @@ All the code blocks in this section will be tangled to the file test.lisp.
                        "<p>FIN</p>")))
      (format t "~a~%" start)
      (format t "~a~%" last))
-   #+end_src
-
-   
-
-   
+   #+end_
